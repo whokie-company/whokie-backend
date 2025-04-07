@@ -5,6 +5,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import supernova.whokie.alarm.event.AlarmEventDto;
 import supernova.whokie.answer.constants.AnswerConstants;
+import supernova.whokie.answer.event.AnswerEventPublisher;
 import supernova.whokie.answer.service.dto.AnswerCommand;
 import supernova.whokie.global.constants.MessageConstants;
 import supernova.whokie.global.exception.InvalidEntityException;
@@ -20,11 +21,11 @@ import supernova.whokie.ranking.service.RankingWriterService;
 @Service
 @RequiredArgsConstructor
 public class AnswerFacade {
+
     private final AnswerService answerService;
     private final QuestionReaderService questionReaderService;
-    private final GroupReaderService groupReaderService;
-    private final RankingWriterService rankingWriterService;
-    private final ApplicationEventPublisher eventPublisher;
+    private final AnswerEventPublisher answerEventPublisher;
+
 
     public void answerToCommonQuestion(Long userId, AnswerCommand.CommonAnswer command) {
         Question question = questionReaderService.getQuestionById(command.questionId());
@@ -33,7 +34,7 @@ public class AnswerFacade {
 
     public void answerToGroupQuestion(Long userId, AnswerCommand.Group command) {
         Question question = questionReaderService.getQuestionById(command.questionId());
-        if(question.isNotCorrectGroupQuestion(command.groupId())) {
+        if (question.isNotCorrectGroupQuestion(command.groupId())) {
             throw new InvalidEntityException(MessageConstants.GROUP_NOT_FOUND_MESSAGE);
         }
         answerToQuestionAndNotify(userId, command.pickedId(), question);
@@ -42,18 +43,6 @@ public class AnswerFacade {
 
     private void answerToQuestionAndNotify(Long userId, Long pickedId, Question question) {
         answerService.answerToQuestion(userId, pickedId, question);
-
-        // Ranking Count 증가
-        Groups group = groupReaderService.getGroupById(question.getGroupId());
-        rankingWriterService.increaseRankingCountByUserAndQuestionAndGroups(pickedId, question.getContent(), group);
-
-        // 웹 알림 전송
-        AlarmEventDto.Alarm alarmEvent = AlarmEventDto.Alarm.toDto(pickedId, question.getContent());
-        eventPublisher.publishEvent(alarmEvent);
-
-        // 포인트 기록
-        PointRecordEventDto.Earn pointEvent = PointRecordEventDto.Earn.toDto(userId, AnswerConstants.ANSWER_POINT, 0,
-                PointRecordOption.EARN, PointConstants.POINT_EARN_MESSAGE);
-        eventPublisher.publishEvent(pointEvent);
+        answerEventPublisher.publishAnswerAfterEvents(userId, pickedId, question);
     }
 }
