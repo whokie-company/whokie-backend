@@ -9,11 +9,13 @@ import supernova.whokie.alarm.event.AlarmEventDto;
 
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
+import supernova.whokie.answer.event.AnswerEventDto;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class AlarmService {
+
     private final ConcurrentHashMap<Long, SseEmitter> emitters = new ConcurrentHashMap<>();
 
     public SseEmitter connect(Long userId) {
@@ -46,6 +48,18 @@ public class AlarmService {
         } catch (IOException e) {
             emitter.completeWithError(e);
             emitters.remove(event.userId());
+        }
+    }
+
+    public void alarmToConnectedUser(AnswerEventDto.AnswerAfterEvents event) {
+        SseEmitter emitter = emitters.get(event.pickedId());
+        try {
+            if (emitter != null) {
+                emitter.send(event.question());
+            }
+        } catch (IOException e) {
+            emitter.completeWithError(e);
+            emitters.remove(event.pickedId());
         }
     }
 }

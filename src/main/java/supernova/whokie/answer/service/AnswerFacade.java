@@ -3,20 +3,15 @@ package supernova.whokie.answer.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import supernova.whokie.alarm.event.AlarmEventDto;
 import supernova.whokie.answer.constants.AnswerConstants;
-import supernova.whokie.answer.event.AnswerEventPublisher;
+import supernova.whokie.answer.event.AnswerEventDto;
 import supernova.whokie.answer.service.dto.AnswerCommand;
 import supernova.whokie.global.constants.MessageConstants;
 import supernova.whokie.global.exception.InvalidEntityException;
-import supernova.whokie.group.Groups;
-import supernova.whokie.group.service.GroupReaderService;
 import supernova.whokie.pointrecord.PointRecordOption;
 import supernova.whokie.pointrecord.constants.PointConstants;
-import supernova.whokie.pointrecord.event.PointRecordEventDto;
 import supernova.whokie.question.Question;
 import supernova.whokie.question.service.QuestionReaderService;
-import supernova.whokie.ranking.service.RankingWriterService;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +19,7 @@ public class AnswerFacade {
 
     private final AnswerService answerService;
     private final QuestionReaderService questionReaderService;
-    private final AnswerEventPublisher answerEventPublisher;
+    private final ApplicationEventPublisher eventPublisher;
 
 
     public void answerToCommonQuestion(Long userId, AnswerCommand.CommonAnswer command) {
@@ -43,6 +38,17 @@ public class AnswerFacade {
 
     private void answerToQuestionAndNotify(Long userId, Long pickedId, Question question) {
         answerService.answerToQuestion(userId, pickedId, question);
-        answerEventPublisher.publishAnswerAfterEvents(userId, pickedId, question);
+        /**
+         * 이벤트 발행
+         * 1. 알람
+         * 2. 랭킹
+         * 3. 포인트
+         */
+        AnswerEventDto.AnswerAfterEvents answerAfterEvents = AnswerEventDto.AnswerAfterEvents.toDto(
+            userId, pickedId, question,
+            AnswerConstants.ANSWER_POINT, 0,
+            PointRecordOption.EARN, PointConstants.POINT_EARN_MESSAGE
+        );
+        eventPublisher.publishEvent(answerAfterEvents);
     }
 }
