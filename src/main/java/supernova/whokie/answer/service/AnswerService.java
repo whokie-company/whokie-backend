@@ -15,15 +15,12 @@ import supernova.whokie.friend.Friend;
 import supernova.whokie.friend.service.FriendReaderService;
 import supernova.whokie.global.constants.MessageConstants;
 import supernova.whokie.global.exception.InvalidEntityException;
-import supernova.whokie.group.Groups;
-import supernova.whokie.group.service.GroupReaderService;
 import supernova.whokie.pointrecord.PointRecordOption;
 import supernova.whokie.pointrecord.constants.PointConstants;
 import supernova.whokie.pointrecord.event.PointRecordEventDto;
 import supernova.whokie.question.Question;
 import supernova.whokie.question.service.QuestionReaderService;
 import supernova.whokie.ranking.event.RankingEventDto;
-import supernova.whokie.ranking.service.RankingWriterService;
 import supernova.whokie.s3.service.S3Service;
 import supernova.whokie.user.Users;
 import supernova.whokie.user.service.UserReaderService;
@@ -44,11 +41,9 @@ public class AnswerService {
     private final UserReaderService userReaderService;
     private final AnswerReaderService answerReaderService;
     private final QuestionReaderService questionReaderService;
-    private final GroupReaderService groupReaderService;
     private final AnswerWriterService answerWriterService;
     private final FriendReaderService friendReaderService;
     private final S3Service s3Service;
-    private final RankingWriterService rankingWriterService;
 
     @Transactional(readOnly = true)
     public Page<AnswerModel.Record> getAnswerRecord(Pageable pageable, Long userId,
@@ -165,14 +160,10 @@ public class AnswerService {
             AnswerConstants.DEFAULT_HINT_COUNT);
         answerWriterService.save(answer);
 
-//        Groups group = groupReaderService.getGroupById(question.getGroupId());
-
+        // Ranking Count 증가
         RankingEventDto.Increase rankingEvent = RankingEventDto.Increase.toDto(pickedId,
             question);
         eventPublisher.publishEvent(rankingEvent);
-        // Ranking Count 증가
-//        rankingWriterService.increaseRankingCountByUserAndQuestionAndGroups(pickedId,
-//            question.getContent(), group);
 
         // 웹 알림 전송
         AlarmEventDto.Alarm alarmEvent = AlarmEventDto.Alarm.toDto(pickedId, question.getContent());
