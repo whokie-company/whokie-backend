@@ -78,6 +78,14 @@ public class UserController {
         return UserResponse.PersonalInfo.from(model);
     }
 
+    @PutMapping("/information")
+    public GlobalResponse updatePersonalInformation(
+        @RequestBody @Valid UserRequest.Info request,
+        @Authenticate Long userId
+    ) {
+        userService.updatePersonalInformation(userId, request.toCommand());
+        return GlobalResponse.builder().message("개인정보 업데이트 성공").build();
+    }
 
     @GetMapping("/point")
     public UserResponse.Point getUserPoint(

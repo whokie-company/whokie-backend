@@ -77,6 +77,11 @@ public class UserService {
         return UserModel.Info.from(user);
     }
 
+    @Transactional
+    public void updatePersonalInformation(Long userId, UserCommand.Info command) {
+        userWriterService.updateUserPersonalInfo(userId, command);
+    }
+
     @Transactional(readOnly = true)
     public UserModel.Point getPoint(Long userId) {
         Users user = userReaderService.getUserById(userId);
@@ -111,4 +116,5 @@ public class UserService {
             keyword, pageable);
         return entities.map(UserModel.Info::from);
     }
+
 }
