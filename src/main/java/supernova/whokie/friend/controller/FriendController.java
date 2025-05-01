@@ -1,6 +1,8 @@
 package supernova.whokie.friend.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import supernova.whokie.friend.controller.dto.FriendRequest;
@@ -28,10 +30,24 @@ public class FriendController {
     }
 
     @GetMapping("")
-    public FriendResponse.Infos getKakaoFriends(
+    public FriendResponse.Infos getFriends(
             @Authenticate Long userId
     ) {
-        List<FriendModel.Info> infos = friendService.getKakaoFriends(userId);
+        List<FriendModel.Info> infos = friendService.getFriends(userId);
+        return FriendResponse.Infos.from(infos);
+    }
+
+    @GetMapping("/group")
+    public FriendResponse.Infos getAllFriendsByGroupId(
+            @RequestParam(name = "group-id") @NotNull @Min(0) Long groupId,
+            @Authenticate Long userId
+    ) {
+        List<FriendModel.Info> infos;
+        if(groupId == 0) {
+            infos = friendService.getKakaoFriends(userId);
+        } else {
+            infos = friendService.getGroupFriends(userId, groupId);
+        }
         return FriendResponse.Infos.from(infos);
     }
 }

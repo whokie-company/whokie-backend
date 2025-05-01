@@ -88,6 +88,24 @@ class FriendRepositoryTest {
         );
     }
 
+    @Test
+    @DisplayName("HostUser_Id로 모든 친구 불러오기")
+    void findAllByHostUser_Id() {
+        // given
+        Long hostUserId = users.get(0).getId();
+        Friend friend1 = friends.get(0);
+        Friend friend2 = friends.get(2);
+
+        // when
+        List<Friend> actuals = friendRepository.findAllByHostUser_Id(hostUserId);
+
+        assertAll(
+                () -> assertThat(actuals).hasSize(2),
+                () -> assertThat(actuals.get(0).getId()).isEqualTo(friend1.getId()),
+                () -> assertThat(actuals.get(1).getId()).isEqualTo(friend2.getId())
+        );
+    }
+
     private List<Users> createUsers() {
         Users user1 = Users.builder().id(1L).name("host").email("host").point(1).birthDate(LocalDate.now()).kakaoId(1L).gender(Gender.F).imageUrl("image").role(Role.USER).build();
         Users user2 = Users.builder().id(2L).name("user1").email("user1").point(1).birthDate(LocalDate.now()).kakaoId(2L).gender(Gender.F).imageUrl("image").role(Role.USER).build();
@@ -98,6 +116,7 @@ class FriendRepositoryTest {
     private List<Friend> createFriends() {
         Friend friend1 = Friend.builder().id(1L).hostUser(users.get(0)).friendUser(users.get(1)).build();
         Friend friend2 = Friend.builder().id(2L).hostUser(users.get(1)).friendUser(users.get(2)).build();
-        return friendRepository.saveAll(List.of(friend1, friend2));
+        Friend friend3 = Friend.builder().id(3L).hostUser(users.get(0)).friendUser(users.get(2)).build();
+        return friendRepository.saveAll(List.of(friend1, friend2, friend3));
     }
 }

@@ -1,8 +1,5 @@
 package supernova.whokie.friend.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,10 +8,16 @@ import supernova.whokie.friend.infrastructure.apicaller.FriendKakaoApiCaller;
 import supernova.whokie.friend.infrastructure.apicaller.dto.KakaoDto;
 import supernova.whokie.friend.service.dto.FriendCommand;
 import supernova.whokie.friend.service.dto.FriendModel;
+import supernova.whokie.groupmember.GroupMember;
+import supernova.whokie.groupmember.service.GroupMemberReaderService;
 import supernova.whokie.redis.service.KakaoTokenService;
 import supernova.whokie.s3.service.S3Service;
 import supernova.whokie.user.Users;
 import supernova.whokie.user.service.UserReaderService;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -26,13 +29,47 @@ public class FriendService {
     private final KakaoTokenService kakaoTokenService;
     private final FriendWriterService friendWriterService;
     private final S3Service s3Service;
+    private final GroupMemberReaderService groupMemberReaderService;
+
+    @Transactional(readOnly = true)
+    public List<FriendModel.Info> getFriends(Long userId) {
+        List<Friend> friends = friendReaderService.getAllByHostUserId(userId);
+        List<Users> friendUsers = friends.stream().map(Friend::getFriendUser).toList();
+        return friendUsers.stream().map(
+                user -> {
+                    String imageUrl = user.getImageUrl();
+                    if (user.isImageUrlStoredInS3()) {
+                        imageUrl = s3Service.getSignedUrl(imageUrl);
+                    }
+                    return FriendModel.Info.from(user, true, imageUrl);
+                }).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<FriendModel.Info> getGroupFriends(Long userId, Long groupId) {
+        // 그룹 멤버 불러오기
+        List<GroupMember> members = groupMemberReaderService.getGroupMembersList(userId, groupId);
+        // 친구 여부 확인
+        Set<Long> existingSet = friendReaderService.getFriendIdsByHostUser(userId);
+        // 반환
+        return members.stream()
+                .map(member -> {
+                    Users user = member.getUser();
+                    boolean isFriend = existingSet.contains(user.getId());
+                    String imageUrl = user.getImageUrl();
+                    if (user.isImageUrlStoredInS3()) {
+                        imageUrl = s3Service.getSignedUrl(imageUrl);
+                    }
+
+                    return FriendModel.Info.from(user, isFriend, imageUrl);
+                }).toList();
+    }
 
     @Transactional
     public List<FriendModel.Info> getKakaoFriends(Long userId) {
         // userId로 kakaoAccessToken 조회
         String accessToken = kakaoTokenService.refreshIfAccessTokenExpired(userId);
         List<KakaoDto.Profile> profiles = apiCaller.getKakaoFriends(accessToken).elements();
-//        System.out.println(profiles);
         if (profiles == null) {
             return new ArrayList<>();
         }

@@ -45,6 +45,7 @@ public class GroupMemberReaderService {
         if (!groupMemberRepository.existsByUserIdAndGroupId(userId, groupId)) {
             throw new EntityNotFoundException(MessageConstants.GROUP_MEMBER_NOT_FOUND_MESSAGE);
         }
+        System.out.println("11111111111111111111111111111111111111");
 
         return groupMemberRepository.getGroupMemberJoinFetch(userId, groupId);
     }
