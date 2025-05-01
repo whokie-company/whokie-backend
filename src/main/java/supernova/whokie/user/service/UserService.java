@@ -72,6 +72,12 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
+    public UserModel.Info getPersonalInformation(Long userId) {
+        Users user = userReaderService.getUserById(userId);
+        return UserModel.Info.from(user);
+    }
+
+    @Transactional(readOnly = true)
     public UserModel.Point getPoint(Long userId) {
         Users user = userReaderService.getUserById(userId);
         return UserModel.Point.from(user);
@@ -80,7 +86,8 @@ public class UserService {
     @Transactional
     public void uploadImageUrl(Long userId, MultipartFile imageFile) {
         String key = S3Util.generateS3Key(UserConstants.USER_IMAGE_FOLRDER, userId);
-        S3EventDto.Upload event = S3EventDto.Upload.toDto(imageFile, key, UserConstants.USER_IMAGE_WIDTH, UserConstants.USER_IMAGE_HEIGHT);
+        S3EventDto.Upload event = S3EventDto.Upload.toDto(imageFile, key,
+            UserConstants.USER_IMAGE_WIDTH, UserConstants.USER_IMAGE_HEIGHT);
         eventPublisher.publishEvent(event);
 
         updateImageUrl(userId, key);
@@ -100,7 +107,8 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Page<UserModel.Info> searchUsers(String keyword, Pageable pageable) {
-        Page<Users> entities = userReaderService.findByNameContainingOrEmailContaining(keyword, keyword, pageable);
+        Page<Users> entities = userReaderService.findByNameContainingOrEmailContaining(keyword,
+            keyword, pageable);
         return entities.map(UserModel.Info::from);
     }
 }
