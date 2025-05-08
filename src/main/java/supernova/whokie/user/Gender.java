@@ -1,6 +1,7 @@
 package supernova.whokie.user;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+import supernova.whokie.global.exception.InvalidGenderException;
 
 public enum Gender {
     F("female"),
@@ -23,6 +24,6 @@ public enum Gender {
                 return g;
             }
         }
-        throw new IllegalArgumentException("Invalid gender value: " + gender);
+        throw new InvalidGenderException("Invalid gender value: " + gender);
     }
 }

@@ -101,7 +101,14 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(RequireAdditionalDataException.class)
-    public ResponseEntity<ProblemDetail> requireAdditionalDataException(RequireAdditionalDataException e) {
+    public ResponseEntity<ProblemDetail> requireAdditionalDataException(
+        RequireAdditionalDataException e) {
+        ProblemDetail problemDetail = setCustomProblemDetail(e);
+        return ResponseEntity.status(problemDetail.getStatus()).body(problemDetail);
+    }
+
+    @ExceptionHandler(InvalidGenderException.class)
+    public ResponseEntity<ProblemDetail> invalidGenderException(InvalidGenderException e) {
         ProblemDetail problemDetail = setCustomProblemDetail(e);
         return ResponseEntity.status(problemDetail.getStatus()).body(problemDetail);
     }
