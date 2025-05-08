@@ -15,7 +15,8 @@ ARG CLIENT_ID \
     AWS_SECRET_KEY \
     S3_BUCKET_NAME \
     URL_SECRET_KEY \
-    PROFILE_ENV
+    PROFILE_ENV \
+    SPRING_PROFILES_ACTIVE
 
 
 # ⭐ 'ENV' 예약어를 통해 전달받은 값을 실제 값과 매칭시켜야 한다.
@@ -31,10 +32,11 @@ ENV CLIENT_ID=${CLIENT_ID} \
     AWS_ACCESS_KEY=${AWS_ACCESS_KEY} \
     AWS_SECRET_KEY=${AWS_SECRET_KEY} \
     S3_BUCKET_NAME=${S3_BUCKET_NAME} \
-    URL_SECRET_KEY=${URL_SECRET_KEY}
+    URL_SECRET_KEY=${URL_SECRET_KEY} \
+    SPRING_PROFILES_ACTIVE=${PROFILE_ENV}
 
 ARG JAR_FILE=build/libs/*.jar
 COPY ${JAR_FILE} app.jar
 
-ENTRYPOINT ["java", "-Duser.timezone=Asia/Seoul", "-Dspring.profiles.active=${PROFILE_ENV}", "-jar", "/app.jar"]
+ENTRYPOINT ["java", "-Duser.timezone=Asia/Seoul", "-jar", "/app.jar"]
 
