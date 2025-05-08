@@ -30,7 +30,7 @@ jobs:
       KAKAO_PAY_FAIL_REDIRECT_URL: ${{ secrets.KAKAO_PAY_DEV_FAIL_REDIRECT_URL }}
       KAKAO_PAY_CANCEL_REDIRECT_URL: ${{ secrets.KAKAO_PAY_DEV_CANCEL_REDIRECT_URL }}
       URL_SECRET_KEY: ${{ secrets.URL_SECRET_KEY }}
-      PROFILE_ENV: ${{secrets.PROFILE_ENV}}
+      PROFILE_ENV: ${{secrets.PROFILE_DEV}}
 
     runs-on: ubuntu-latest
 
@@ -46,7 +46,7 @@ jobs:
       - name: Build with Gradle
         run: |
           chmod +x ./gradlew    
-          ./gradlew clean build -Dspring.profiles.active=${{secrets.PROFILE_ENV}}
+          ./gradlew clean build -Dspring.profiles.active=${{secrets.PROFILE_DEV}}
 
 
       # dockerfile을 통해 이미지를 빌드하고, 이를 docker repo로 push 합니다.
