@@ -21,6 +21,10 @@ public class FriendReaderService {
         return friendRepository.findAllByHostUser(user);
     }
 
+    public List<Friend> getAllByHostUserId(Long userId) {
+        return friendRepository.findAllByHostUser_Id(userId);
+    }
+
     @Transactional(readOnly = true)
     public Set<Long> getFriendIdsByHostUser(Long userId) {
         List<Friend> existingList = friendRepository.findByHostUserIdFetchJoin(userId);
