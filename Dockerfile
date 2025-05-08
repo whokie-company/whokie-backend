@@ -33,10 +33,8 @@ ENV CLIENT_ID=${CLIENT_ID} \
     S3_BUCKET_NAME=${S3_BUCKET_NAME} \
     URL_SECRET_KEY=${URL_SECRET_KEY}
 
-
-ENV SPRING_PROFILES_ACTIVE=${PROFILE_ENV}
-
 ARG JAR_FILE=build/libs/*.jar
 COPY ${JAR_FILE} app.jar
 
-ENTRYPOINT ["java", "-Duser.timezone=Asia/Seoul","-jar","/app.jar"]
+ENTRYPOINT ["java", "-Duser.timezone=Asia/Seoul", "-Dspring.profiles.active=${PROFILE_ENV}", "-jar", "/app.jar"]
+
