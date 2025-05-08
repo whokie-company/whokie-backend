@@ -34,45 +34,62 @@ public class UserController {
         String loginUrl = userService.getCodeUrl();
 
         return ResponseEntity.status(HttpStatus.SEE_OTHER)
-                .header("location", loginUrl)
-                .build();
+            .header("location", loginUrl)
+            .build();
     }
 
     @GetMapping("/callback")
     public ResponseEntity<UserResponse.Login> registerUser(
-            @RequestParam("code") @NotBlank String code
+        @RequestParam("code") @NotBlank String code
     ) {
         UserModel.Login model = userService.register(code);
 
         ResponseCookie jwtCookie = ResponseCookie.from("jwt", model.jwt())
-                .path("/")
-                .maxAge(Duration.ofHours(24))
-                .httpOnly(true)
-                .secure(true)
-                .sameSite("Strict")
-                .build();
+            .path("/")
+            .maxAge(Duration.ofHours(24))
+            .httpOnly(true)
+            .secure(true)
+            .sameSite("Strict")
+            .build();
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-                .header("Authorization", model.jwt())
-                .body(UserResponse.Login.from(model));
+            .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+            .header("Authorization", model.jwt())
+            .body(UserResponse.Login.from(model));
     }
 
     @PostMapping("/information")
     public ResponseEntity<UserResponse.Login> postPersonalInformation(
-            @RequestBody @Valid UserRequest.Info request,
-            @TempUser Long userId
+        @RequestBody @Valid UserRequest.Info request,
+        @TempUser Long userId
     ) {
         UserModel.Login model = userService.addPersonalInformation(userId, request.toCommand());
 
         return ResponseEntity.ok()
-                .header("Authorization", model.jwt())
-                .body(UserResponse.Login.from(model));
+            .header("Authorization", model.jwt())
+            .body(UserResponse.Login.from(model));
+    }
+
+    @GetMapping("/information")
+    public UserResponse.PersonalInfo getPersonalInformation(
+        @Authenticate Long userId
+    ) {
+        UserModel.Info model = userService.getPersonalInformation(userId);
+        return UserResponse.PersonalInfo.from(model);
+    }
+
+    @PutMapping("/information")
+    public GlobalResponse updatePersonalInformation(
+        @RequestBody @Valid UserRequest.Info request,
+        @Authenticate Long userId
+    ) {
+        userService.updatePersonalInformation(userId, request.toCommand());
+        return GlobalResponse.builder().message("개인정보 업데이트 성공").build();
     }
 
     @GetMapping("/point")
     public UserResponse.Point getUserPoint(
-            @Authenticate Long userId
+        @Authenticate Long userId
     ) {
         UserModel.Point response = userService.getPoint(userId);
         return UserResponse.Point.from(response);
@@ -80,8 +97,8 @@ public class UserController {
 
     @PatchMapping("/image")
     public GlobalResponse updateUserImage(
-            @Authenticate Long userId,
-            @RequestParam("image") @NotNull MultipartFile imageFile
+        @Authenticate Long userId,
+        @RequestParam("image") @NotNull MultipartFile imageFile
     ) {
         userService.uploadImageUrl(userId, imageFile);
         return GlobalResponse.builder().message("프로필 이미지 업데이트 성공").build();

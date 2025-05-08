@@ -15,6 +15,9 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
     @Query("SELECT f FROM Friend f JOIN FETCH f.friendUser WHERE f.hostUser = :hostUser")
     List<Friend> findAllByHostUser(@Param("hostUser") Users hostUser);
 
+    @Query("SELECT f FROM Friend f JOIN FETCH f.friendUser WHERE f.hostUser.id = :hostUser_Id")
+    List<Friend> findAllByHostUser_Id(@Param("hostUser_Id") Long hostUser_Id);
+
     void deleteAllByHostUser(Users user);
 }
 
