@@ -15,8 +15,7 @@ ARG CLIENT_ID \
     AWS_SECRET_KEY \
     S3_BUCKET_NAME \
     URL_SECRET_KEY \
-    PROFILE_ENV \
-    SPRING_PROFILES_ACTIVE
+    PROFILE_ENV
 
 
 # ⭐ 'ENV' 예약어를 통해 전달받은 값을 실제 값과 매칭시켜야 한다.

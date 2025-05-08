@@ -30,7 +30,6 @@ jobs:
       KAKAO_PAY_FAIL_REDIRECT_URL: ${{ secrets.KAKAO_PAY_PROD_FAIL_REDIRECT_URL }}
       KAKAO_PAY_CANCEL_REDIRECT_URL: ${{ secrets.KAKAO_PAY_PROD_CANCEL_REDIRECT_URL }}
       URL_SECRET_KEY: ${{ secrets.URL_SECRET_KEY }}
-      PROFILE_ENV: ${{secrets.PROFILE_PROD}}
 
     runs-on: ubuntu-latest
 
@@ -46,7 +45,7 @@ jobs:
       - name: Build with Gradle
         run: |
           chmod +x ./gradlew    
-          ./gradlew clean build -Dspring.profiles.active=${{secrets.PROFILE_PROD}}
+          ./gradlew clean build -Dspring.profiles.active=prod
 
 
       # dockerfile을 통해 이미지를 빌드하고, 이를 docker repo로 push 합니다.
@@ -75,7 +74,6 @@ jobs:
             # Pull the latest image
             sudo docker pull ${{ secrets.DOCKER_PROD_REPO }}
             # Run the new container with environment variables
-            
             sudo docker run -d -p 8081:8080 \
             -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
             -e CLIENT_ID=${{ secrets.KAKAO_PROD_CLIENT_ID }} \
@@ -94,6 +92,6 @@ jobs:
             -e KAKAO_PAY_FAIL_REDIRECT_URL=${{ secrets.KAKAO_PAY_PROD_FAIL_REDIRECT_URL }} \
             -e KAKAO_PAY_CANCEL_REDIRECT_URL=${{ secrets.KAKAO_PAY_PROD_CANCEL_REDIRECT_URL }} \
             -e URL_SECRET_KEY=${{ secrets.URL_SECRET_KEY }} \
-            -e PROFILE_ENV=${{ secrets.PROFILE_PROD }} \
+            -e PROFILE_ENV=prod \
             ${{ secrets.DOCKER_PROD_REPO }}
             
