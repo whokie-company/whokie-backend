@@ -72,15 +72,4 @@ public class WebMvcConfig implements WebMvcConfigurer {
         resolvers.add(tempUserArgumentResolver());
 
     }
-
-//    @Override
-//    public void addCorsMappings(CorsRegistry registry) {
-//        registry.addMapping("/**")
-//                .allowedOriginPatterns("*")
-//                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-//                .allowedHeaders("Authorization", "Content-Type")
-//                .allowCredentials(true)
-//                .exposedHeaders("Authorization")
-//                .maxAge(3600);
-//    }
 }
