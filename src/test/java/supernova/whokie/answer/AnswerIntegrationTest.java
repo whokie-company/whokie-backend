@@ -106,9 +106,7 @@ class AnswerIntegrationTest {
             .andExpect(jsonPath("$.users").isArray())
             .andDo(result -> {
                 String responseContent = result.getResponse().getContentAsString();
-                System.out.println("users 내용: " + responseContent);
             });
-
     }
 
     @Test
@@ -171,7 +169,6 @@ class AnswerIntegrationTest {
             .andExpect(jsonPath("$.totalElements").value(5))
             .andDo(result -> {
                 String responseContent = result.getResponse().getContentAsString();
-                System.out.println("전체 질문 기록 내용: " + responseContent);
             });
     }
 
@@ -192,7 +189,6 @@ class AnswerIntegrationTest {
             .andExpect(jsonPath("$.hints[2].valid").value(false))
             .andDo(result -> {
                 String responseContent = result.getResponse().getContentAsString();
-                System.out.println("Hints 내용: " + responseContent);
             });
     }
 
@@ -216,7 +212,6 @@ class AnswerIntegrationTest {
             .andExpect(jsonPath("$.message").value("힌트를 성공적으로 구매하였습니다!"))
             .andDo(result -> {
                 String responseContent = result.getResponse().getContentAsString();
-                System.out.println("구매 응답 내용: " + responseContent);
             });
 
         //유저 포인트 감소 확인
@@ -246,7 +241,6 @@ class AnswerIntegrationTest {
             .andExpect(jsonPath("$.message").value("그룹 질문 답변 완료"))
             .andDo(result -> {
                 String responseContent = result.getResponse().getContentAsString();
-                System.out.println("그룹 질문 답변 내용: " + responseContent);
             });
 
         Users userAfterAnswer = userRepository.findById(userId).orElseThrow();
