@@ -55,18 +55,20 @@ class FriendRepositoryTest {
         // given
         Users host = users.get(0);
         Users user1 = users.get(1);
+        Users user2 = users.get(2);
 
         Friend friend1 = friends.get(0);
-        Friend friend2 = friends.get(1);
-        friendRepository.saveAll(List.of(friend1, friend2));
+        Friend friend3 = friends.get(2);
 
         // when
         List<Friend> actual = friendRepository.findByHostUserIdFetchJoin(host.getId());
 
         // then
-        assertThat(actual).hasSize(1);
-        assertThat(actual.getFirst().getId()).isEqualTo(friend1.getId());
-        assertThat(actual.getFirst().getFriendUser().getId()).isEqualTo(user1.getId());
+        assertAll(
+                () -> assertThat(actual).hasSize(2),
+                () ->  assertThat(actual.getFirst().getId()).isEqualTo(friend1.getId()),
+                () ->  assertThat(actual.get(1).getId()).isEqualTo(friend3.getId())
+        );
     }
 
     @Test
