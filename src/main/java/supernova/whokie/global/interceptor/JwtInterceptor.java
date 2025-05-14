@@ -1,6 +1,7 @@
 package supernova.whokie.global.interceptor;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -19,7 +20,7 @@ public class JwtInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
-                             Object handler) throws Exception {
+        Object handler) throws Exception {
         String authHeader = request.getHeader(HEADER_AUTHORIZATION);
         if (authHeader == null) {
             return true;
@@ -28,9 +29,13 @@ public class JwtInterceptor implements HandlerInterceptor {
             throw new AuthenticationException("Invalid Token");
         }
 
-        Claims claim = jwtProvider.getClaim(authHeader.substring(7));
-        request.setAttribute("userId", claim.getSubject());
-        request.setAttribute("role", claim.get("role"));
+        try {
+            Claims claim = jwtProvider.getClaim(authHeader.substring(7));
+            request.setAttribute("userId", claim.getSubject());
+            request.setAttribute("role", claim.get("role"));
+        } catch (JwtException e) {
+            throw new AuthenticationException(e.getMessage());
+        }
 
         return true;
     }
